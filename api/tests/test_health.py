@@ -1,5 +1,7 @@
 import json
 
+from sqlalchemy.exc import OperationalError
+
 from app.db import get_session
 
 
@@ -48,12 +50,17 @@ def test_health_emits_structured_request_log(client, caplog):
 
 
 def test_health_returns_503_when_unavailable(client):
-    def broken_session():
-        raise RuntimeError("Database Unavailable")
+    class BrokenSession:
+        def execute(self, statement):
+            raise OperationalError(
+                "Database Unavailable",
+                None,
+                Exception("connection failed"),
+            )
 
-    client.app.dependency_overrides[get_session] = broken_session
+    client.app.dependency_overrides[get_session] = lambda: BrokenSession()
 
     response = client.get("/api/health")
 
     assert response.status_code == 503
-    assert "Database Unavailable" in response.json()["detail"]
+    assert response.json()["detail"] == "Database Unavailable"
