@@ -12,6 +12,7 @@ import {
   getLesson,
   getModules,
 } from "../src/content";
+import {parseCriteria} from "../src/content/criteria";
 import { expectNoCriteria } from "./helpers/accessors";
 
 describe("Content Contracts & Fixtures", () => {
@@ -161,4 +162,16 @@ describe("content accessors", () => {
         expect(pageModule).toBeDefined();
         expectNoCriteria(pageModule);
     });
+});
+
+describe("parseCriteria", () => {
+  it("parses an equals criterion", () => {
+    const yaml = `- check: equals\n  expected: 7\n  reason_code: wrong_total`;
+
+    expect(parseCriteria(yaml, "lesson.md", 1)).toEqual([{
+      check: "equals",
+      expected: 7,
+      reason_code: "wrong_total",
+    }]);
+  });
 });
