@@ -40,6 +40,56 @@ main [tabindex="-1"]:focus {
   outline: none;
 }
 
+/* Page shell primitive for PageLayout.tsx. */
+.page-layout {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4);
+}
+
+.page-header {
+  margin-bottom: var(--space-5);
+  color: var(--text);
+}
+
+/* ------------------------------------------------------------------ card --- */
+
+/* Card primitive for Card.tsx. */
+.card {
+  background-color: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+}
+
+.card-title {
+  margin-top: 0;
+  margin-bottom: var(--space-3);
+  font-weight: 800;
+}
+
+/* The default: a small label introducing the card's content. */
+.card-title--eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* The card's own headline, when the card is a thing rather than a panel. */
+.card-title--heading {
+  font-size: 1.125rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
 /* ---------------------------------------------------------------- footer --- */
 
 .footer {
@@ -422,6 +472,173 @@ a.btn {
   margin-top: var(--space-2);
 }
 
+/* --------------------------------------------------------- module page --- */
+
+/* Nested in the root layout's shell, so it carries no page padding of its own. */
+.module-page.page-layout {
+  max-width: none;
+  padding: 0;
+}
+
+.module-page__heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.module-page__back {
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 0.875rem;
+  text-decoration: none;
+  padding: var(--space-1) 0;
+}
+
+.module-page__back:hover {
+  text-decoration: underline;
+}
+
+.module-page__title {
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  font-weight: 800;
+}
+
+.module-page__description {
+  color: var(--text-muted);
+  align-self: stretch;
+}
+
+/* --- the lesson list --- */
+
+.lesson-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.lesson-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-lg);
+}
+
+.lesson-card-link:focus-visible {
+  outline: 3px solid var(--sky-400);
+  outline-offset: 3px;
+}
+
+/* The base .card is a centred column; a lesson row reads left-to-right. */
+.lesson-card.card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "position title marks"
+    "position body  body";
+  align-items: center;
+  text-align: left;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-4);
+  transition:
+    transform var(--duration-fast) var(--ease-spring),
+    box-shadow var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+}
+
+.lesson-card-link:hover .lesson-card.card {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Type scale comes from titleVariant="heading"; only the placement is local. */
+.lesson-card .card-title {
+  grid-area: title;
+  margin: 0;
+}
+
+.lesson-card__position {
+  grid-area: position;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.lesson-card__description {
+  grid-area: body;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.lesson-card__marks {
+  grid-area: marks;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* --- the tutorial / lab badge --- */
+
+.lesson-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 2px solid transparent;
+}
+
+.lesson-badge__glyph {
+  flex: none;
+}
+
+/* Colour is the last signal: text, glyph and outline differ too. */
+.lesson-badge--tutorial {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  border-radius: var(--radius-pill);
+}
+
+.lesson-badge--lab {
+  background: var(--success-soft);
+  border-color: var(--success);
+  color: var(--success);
+  border-radius: var(--radius-sm);
+  border-style: dashed;
+}
+
+@media (max-width: 30rem) {
+  .lesson-card.card {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "position title"
+      "body     body"
+      "marks    marks";
+  }
+
+  .lesson-card__marks {
+    justify-content: flex-start;
+  }
+}
+
 /* --- modules list --- */
 .module-card-link {
   display: flex;
@@ -438,8 +655,8 @@ a.btn {
 
 .module-card-link:hover {
   background-color: var(--surface-sunken);
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: var(--accent);
+  color: var(--accent);
   border-radius: var(--radius-md);
 }
 
@@ -480,4 +697,241 @@ a.btn {
   background-color: var(--surface);
   text-align: center;
   width: 100%;
+}
+
+/* ------ Markdown ----- */
+.markdown {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  max-width: 100%;
+  /* Wide content scrolls in its own container - see .markdown-table-wrapper,
+     .markdown pre and .katex-display. An overflow here would make the whole
+     article the scroll container and can clip focus rings on links inside. */
+  overflow-wrap: break-word;
+}
+
+/* Content fills its container. The Card it sits in owns the outer padding,
+   so a measure here would only leave dead space to the right of the text. */
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-2);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.markdown h1 {
+  font-size: 1.5rem;
+}
+
+.markdown h2 {
+  font-size: 1.25rem;
+}
+
+.markdown h3 {
+  font-size: 1.125rem;
+}
+
+.markdown h4 {
+  font-size: 1rem;
+}
+
+/* h5 and h6 stay at or above body size - a heading smaller than the text it
+   introduces reads as a caption. They separate by weight and tracking. */
+.markdown h5 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.markdown h6 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+/* A step is rendered inside a Card, which owns the outer padding. Without
+   this the first and last blocks add a second, uneven gap. */
+.markdown > *:first-child {
+  margin-top: 0;
+}
+
+.markdown > *:last-child {
+  margin-bottom: 0;
+}
+
+.markdown ul,
+.markdown ol {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+  /* Just enough for the marker to sit outside the text. The browser default
+     is 40px, which indents a lesson's list for no reason. */
+  padding-left: var(--space-4);
+}
+
+.markdown li {
+  margin-bottom: var(--space-2);
+}
+
+/*
+ * A list with blank lines between its items is "loose" in markdown and each
+ * item comes back as <li><p>text</p></li>. Without this the paragraph margins
+ * apply inside the item and every bullet gains a gap above and below its own
+ * text. Paragraphs still separate from each other within a single item.
+ */
+.markdown li > p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown li > p + p {
+  margin-top: var(--space-3);
+}
+
+.markdown li > ul,
+.markdown li > ol {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.markdown li::marker {
+  color: var(--text-muted);
+}
+
+/* Body line is ~25px at this size; a 12px gap reads as one dense block. */
+.markdown p {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.markdown a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.markdown a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Inline code inherits the global `code` rule; only the block form needs
+   anything extra. The block is the container, so the code inside it drops
+   its own chrome rather than nesting two boxes. */
+.markdown pre {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.markdown pre code {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+.markdown-table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.markdown table {
+  border-collapse: collapse;
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+  min-width: 100%;
+  /* Figures line up in columns instead of drifting. This is a maths app and
+     most table cells are numbers. */
+  font-variant-numeric: tabular-nums;
+}
+
+.markdown th,
+.markdown td {
+  border: 1px solid var(--border);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+}
+
+.markdown th {
+  background-color: var(--surface-sunken);
+  font-weight: 700;
+}
+
+/* Anchors the header to the body rather than leaving it as one more row. */
+.markdown thead th {
+  border-bottom: 2px solid var(--border-strong);
+}
+
+.markdown img {
+  max-width: 100%;
+  /* Without this, a width/height pair on the tag distorts the image once
+     max-width kicks in. */
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* The UA default is an inset 3D border that ignores the theme. */
+.markdown hr {
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-5);
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.markdown blockquote {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-4);
+  /* --accent-soft is near-invisible against the surface in both themes;
+     --accent carries in light and dark. */
+  border-left: 3px solid var(--accent);
+  color: var(--text-muted);
+}
+
+.markdown blockquote p {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.markdown blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown blockquote p:first-child {
+  margin-top: 0;
+}
+
+.markdown .katex {
+  font-size: 1.1em;
+}
+
+/* Display math is a figure, not a line of prose - it needs room around it,
+   and the scroll padding stops a wide expression sitting flush to the edge. */
+.markdown .katex-display {
+  font-size: 1.4em;
+  max-width: 100%;
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-1);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* The focus ring on the scroll containers should follow their own corners
+   rather than the 8px default. */
+.markdown-table-wrapper:focus-visible,
+.markdown pre:focus-visible {
+  border-radius: var(--radius-md);
 }
