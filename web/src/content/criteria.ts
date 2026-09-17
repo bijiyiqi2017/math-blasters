@@ -43,11 +43,6 @@ export function parseCriteria(yamlSource: string, path: string, stepNumber: numb
         `Invalid expected value for in_range criterion at ${path} step ${stepNumber} index ${index}: expected an object with "min" and "max" properties, but got: ${JSON.stringify(criterion.expected)}`,
       );
     }
-    if (criterion.check === "equals_any" && !Array.isArray(criterion.expected)) {
-      throw new Error(
-        `Invalid expected value for equals_any criterion at ${path} step ${stepNumber} index ${index}: expected an array, but got: ${typeof criterion.expected}`,
-      );
-    }
     if (criterion.check === "set_equals" && !Array.isArray(criterion.expected)) {
       throw new Error(
         `Invalid expected value for set_equals criterion at ${path} step ${stepNumber} index ${index}: expected an array, but got: ${typeof criterion.expected}`,
