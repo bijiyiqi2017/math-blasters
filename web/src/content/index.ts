@@ -10,6 +10,18 @@ import type {
   StepResult,
 } from "./types";
 
+const lessonSources = import.meta.glob("/content/**/*.md", { eager: true, query: "raw" });
+
+const lessons: Lesson[] = [];
+const lessonEntries = Object.entries(lessonSources);
+for (let index = 0; index < lessonEntries.length; index++) {
+  const [path, source] = lessonEntries[index];
+  
+  const lesson = parseLesson(source, path);
+  lessons.push(lesson);
+}
+
+
 // Re-export all types & fixtures
 export * from "./types";
 export * from "./fixtures";
