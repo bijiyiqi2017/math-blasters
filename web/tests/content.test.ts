@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   contentIndex,
+  arithmeticAdditionModule,
   makeLesson,
   validateLesson,
   checkStep,
@@ -47,6 +48,9 @@ describe("Content Contracts & Fixtures", () => {
   });
 
   describe("Fixtures", () => {
+    it("keeps the real content index in sync with the fixture", () => {
+      expect(contentIndex).toEqual([arithmeticAdditionModule]);
+    });
     it("exports contentIndex with arithmetic-addition module", () => {
       expect(contentIndex).toHaveLength(1);
       expect(contentIndex[0].slug).toBe("arithmetic-addition");

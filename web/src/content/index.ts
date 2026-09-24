@@ -30,22 +30,37 @@ for (const [path, source] of moduleEntries) {
 }
 
 const lessonSources = import.meta.glob<string>("@content/**/*.md", { eager: true, query: "?raw", import: "default", });
-const lessonEntries = Object.entries(lessonSources);
+const lessonEntries = Object.entries(lessonSources).sort(([a], [b]) =>
+  a.localeCompare(b),
+);
 const lessonsByModule = new Map<string, Lesson[]>();
+const lessonSlugs = new Map<string, string>();
 for (let index = 0; index < lessonEntries.length; index++) {
   const [path, source]: [string, string] = lessonEntries[index];
   const modulePath = path.slice(0, path.lastIndexOf("/"));
   
   const lesson = parseLesson(source, path);
+  const existingPath = lessonSlugs.get(lesson.slug);
+
+  if (existingPath !== undefined && existingPath !== path) {
+    throw new Error(
+      `Duplicate lesson slug "${lesson.slug}" found in ${existingPath} and ${path}.`,
+    );
+  }
+
+  lessonSlugs.set(lesson.slug, path);
+
   const moduleLessons = lessonsByModule.get(modulePath) ?? [];
   moduleLessons.push(lesson);
   lessonsByModule.set(modulePath, moduleLessons);
 }
 
-const contentModules: Module[] = modules.map(({ modulePath, position, ...metadata }) => ({
-  ...metadata,
-  lessons: lessonsByModule.get(modulePath) ?? [],
-}));
+const contentModules: Module[] = [...modules]
+  .sort((a, b) => a.position - b.position)
+  .map(({ modulePath, ...metadata }) => ({
+    ...metadata,
+    lessons: lessonsByModule.get(modulePath) ?? [],
+  }));
 
 export { parseLesson } from "./parse";
 // Re-export all types & fixtures
@@ -53,9 +68,7 @@ export * from "./types";
 export * from "./fixtures";
 
 /**
- * Content index containing all registered modules.
- * For now, this is populated with fixture data. It will be swapped for the
- * build-time glob / loader in a subsequent phase without changing the public contract.
+ * Content index containing all registered modules loaded from the real content files at build time.
  */
 export const contentIndex: Module[] = contentModules;
 

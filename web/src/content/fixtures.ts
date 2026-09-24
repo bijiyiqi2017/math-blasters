@@ -34,11 +34,12 @@ export function makeLesson(overrides: Partial<Lesson> = {}): Lesson {
 
 /**
  * Hand-written fixture data for the arithmetic-addition module.
- * Serves as the initial content source before build-time content loading is introduced.
+ * Kept as test/reference data for verifying the build-time content index.
  */
 export const arithmeticAdditionModule: Module = {
   slug: "arithmetic-addition",
   title: "Arithmetic Addition",
+  position: 1,
   description:
     "Learn the fundamentals of single-digit addition through interactive tutorials and labs.",
   lessons: [
@@ -47,7 +48,7 @@ export const arithmeticAdditionModule: Module = {
       slug: "adding-two-numbers",
       title: "Adding Two Numbers",
       type: "tutorial",
-      description: "Learn how to add two single-digit numbers together.",
+      teaches: ["addition", "counting-on"],
       steps: [
         {
           type: "explain",
@@ -72,8 +73,6 @@ export const arithmeticAdditionModule: Module = {
       slug: "marbles-in-total",
       title: "Marbles in Total",
       type: "lab",
-      description:
-        "Practice combining collections of marbles to solve word problems.",
       outcome:
         "Combine groups of marbles to find total sums in applied scenarios.",
       requires: ["addition"],
