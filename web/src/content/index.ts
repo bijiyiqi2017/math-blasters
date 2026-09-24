@@ -1,13 +1,9 @@
 import { arithmeticAdditionModule } from "./fixtures";
 import type {
-  Criterion,
-  CriterionResult,
   Lesson,
   Module,
   PageLesson,
   PageModule,
-  Step,
-  StepResult,
 } from "./types";
 
 const lessonSources = import.meta.glob("/content/**/*.md", { eager: true, query: "raw" });
@@ -68,6 +64,15 @@ export function getLesson(slug: string): PageLesson | undefined {
   return undefined;
 }
 
+/** Retrieve the slug of the module a lesson belongs to, so a lesson-only route (/lessons/:slug carries no module slug) can still link back to it. */
+export function getModuleForLesson(lessonSlug: string): string | undefined {
+  const module = contentIndex.find((module) =>
+    module.lessons.some((lesson) => lesson.slug === lessonSlug),
+  );
+
+  return module?.slug;
+}
+
 function toPageLesson(lesson: Lesson): PageLesson {
   const steps = lesson.steps.map((step) => {
     if (step.type === "answer") {
@@ -93,6 +98,12 @@ function toPageModule(module: Module): PageModule {
 }
 
 // ---------------------------------------------------------------------------
+// Evaluation Exports
+// ---------------------------------------------------------------------------
+
+export { checkStep, checkCriterion, normalizeSubmission } from "./check";
+
+// ---------------------------------------------------------------------------
 // Signature-only Stubs (throw "not implemented")
 // ---------------------------------------------------------------------------
 
@@ -109,23 +120,6 @@ export function parseLesson(_source: string, _path?: string): Lesson {
  * Validate a Lesson domain object against schema rules.
  */
 export function validateLesson(_lesson: Lesson, _path?: string): void {
-  throw new Error("not implemented");
-}
-
-/**
- * Check a step against a user submission.
- */
-export function checkStep(_step: Step, _submission: unknown): StepResult {
-  throw new Error("not implemented");
-}
-
-/**
- * Check an individual criterion against a user submission.
- */
-export function checkCriterion(
-  _criterion: Criterion,
-  _submission: unknown,
-): CriterionResult {
   throw new Error("not implemented");
 }
 

@@ -75,6 +75,24 @@ in the README.
 
 A lesson is a markdown file, not a database row — no migration, no seeder.
 
+An answer step's criteria block may also include two optional fields, `checking` and `hints`:
+
+- `checking` — a plain-language sentence describing what the step is checking. Not shown to learners yet; this is a schema slot for later UI.
+- `hints` — an ordered list of sentences to offer a learner who is stuck, in the order they'd be shown.
+
+```
+checking: the total number of marbles across all three jars
+hints:
+  - Count each jar separately first.
+  - Add the first two, then add the third.
+criteria:
+  - check: equals
+    expected: 15
+    reason_code: wrong_total
+```
+
+The bare list of criteria (no `checking`/`hints`) is still valid and means exactly what it always has.
+
 1. New module: add `content/<module-slug>/module.yaml` with `slug`, `title`,
    `summary` and a `position` (modules are ordered by it). Skip this if
    you're adding a lesson to an existing module.
@@ -89,6 +107,10 @@ A lesson is a markdown file, not a database row — no migration, no seeder.
    `content/` and fails on the first malformed one, printing the file and
    the reason. CI runs the same check, so a broken lesson can't land
    quietly.
+5. From `web/`, run `npm run content:manifest` to regenerate
+   `content/manifest.json` and commit the result. It's the API's only record
+   of which slugs are real, so CI fails (`npm run content:manifest -- --check`)
+   if a lesson lands without a matching manifest entry.
 
 No code change and no review of `DemoProblem` needed — open the PR like any
 other.
