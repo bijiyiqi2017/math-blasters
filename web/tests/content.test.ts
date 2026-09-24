@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   contentIndex,
   makeLesson,
-  parseLesson,
   validateLesson,
   checkStep,
   checkCriterion,
@@ -89,10 +88,6 @@ describe("Content Contracts & Fixtures", () => {
   });
 
   describe("Signature-only stubs", () => {
-    it('parseLesson throws "not implemented"', () => {
-      expect(() => parseLesson("some source")).toThrow("not implemented");
-    });
-
     it('validateLesson throws "not implemented"', () => {
       const lesson = makeLesson();
       expect(() => validateLesson(lesson)).toThrow("not implemented");

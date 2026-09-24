@@ -1,23 +1,53 @@
-import { arithmeticAdditionModule } from "./fixtures";
 import type {
   Lesson,
   Module,
   PageLesson,
   PageModule,
 } from "./types";
+import { parse as parseYaml } from "yaml";
+import { parseLesson } from "./parse";
 
-const lessonSources = import.meta.glob("/content/**/*.md", { eager: true, query: "raw" });
+const moduleSources = import.meta.glob<string>("@content/**/module.yaml", {
+  eager: true,
+  query: "?raw",
+  import: "default",
+});
+const moduleEntries = Object.entries(moduleSources);
+type ModuleMetadata = { slug: string; title: string; description: string; position: number; modulePath: string; };
+const modules: ModuleMetadata[] = [];
 
-const lessons: Lesson[] = [];
-const lessonEntries = Object.entries(lessonSources);
-for (let index = 0; index < lessonEntries.length; index++) {
-  const [path, source] = lessonEntries[index];
-  
-  const lesson = parseLesson(source, path);
-  lessons.push(lesson);
+
+for (const [path, source] of moduleEntries) {
+  const data = parseYaml(source);
+
+  modules.push({
+    slug: data.slug,
+    title: data.title,
+    description: data.summary,
+    modulePath: path.slice(0, path.lastIndexOf("/")),
+    position: data.position,
+  });
 }
 
+const lessonSources = import.meta.glob<string>("@content/**/*.md", { eager: true, query: "?raw", import: "default", });
+const lessonEntries = Object.entries(lessonSources);
+const lessonsByModule = new Map<string, Lesson[]>();
+for (let index = 0; index < lessonEntries.length; index++) {
+  const [path, source]: [string, string] = lessonEntries[index];
+  const modulePath = path.slice(0, path.lastIndexOf("/"));
+  
+  const lesson = parseLesson(source, path);
+  const moduleLessons = lessonsByModule.get(modulePath) ?? [];
+  moduleLessons.push(lesson);
+  lessonsByModule.set(modulePath, moduleLessons);
+}
 
+const contentModules: Module[] = modules.map(({ modulePath, position, ...metadata }) => ({
+  ...metadata,
+  lessons: lessonsByModule.get(modulePath) ?? [],
+}));
+
+export { parseLesson } from "./parse";
 // Re-export all types & fixtures
 export * from "./types";
 export * from "./fixtures";
@@ -27,7 +57,7 @@ export * from "./fixtures";
  * For now, this is populated with fixture data. It will be swapped for the
  * build-time glob / loader in a subsequent phase without changing the public contract.
  */
-export const contentIndex: Module[] = [arithmeticAdditionModule];
+export const contentIndex: Module[] = contentModules;
 
 // ---------------------------------------------------------------------------
 // Accessor Stubs (operating synchronously against contentIndex)
@@ -108,13 +138,6 @@ export { checkStep, checkCriterion, normalizeSubmission } from "./check";
 // ---------------------------------------------------------------------------
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-/**
- * Parse raw lesson source into a Lesson domain object.
- */
-export function parseLesson(_source: string, _path?: string): Lesson {
-  throw new Error("not implemented");
-}
 
 /**
  * Validate a Lesson domain object against schema rules.
