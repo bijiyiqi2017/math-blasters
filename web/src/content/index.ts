@@ -57,8 +57,10 @@ for (let index = 0; index < lessonEntries.length; index++) {
 
 const contentModules: Module[] = [...modules]
   .sort((a, b) => a.position - b.position)
-  .map(({ modulePath, ...metadata }) => ({
-    ...metadata,
+  .map(({ modulePath, slug, title, description }) => ({
+    slug,
+    title,
+    description,
     lessons: lessonsByModule.get(modulePath) ?? [],
   }));
 

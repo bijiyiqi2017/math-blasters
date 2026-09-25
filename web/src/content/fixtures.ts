@@ -39,7 +39,6 @@ export function makeLesson(overrides: Partial<Lesson> = {}): Lesson {
 export const arithmeticAdditionModule: Module = {
   slug: "arithmetic-addition",
   title: "Arithmetic Addition",
-  position: 1,
   description:
     "Learn the fundamentals of single-digit addition through interactive tutorials and labs.",
   lessons: [
