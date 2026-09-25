@@ -13,20 +13,82 @@ const moduleSources = import.meta.glob<string>("@content/**/module.yaml", {
   import: "default",
 });
 const moduleEntries = Object.entries(moduleSources);
-type ModuleMetadata = { slug: string; title: string; description: string; position: number; modulePath: string; };
+type ModuleMetadata = {
+  slug: string;
+  title: string;
+  description: string;
+  position: number;
+  modulePath: string;
+};
+
 const modules: ModuleMetadata[] = [];
 
-
 for (const [path, source] of moduleEntries) {
-  const data = parseYaml(source);
+  const metadata = parseModuleMetadata(source, path);
 
   modules.push({
-    slug: data.slug,
-    title: data.title,
-    description: data.summary,
+    ...metadata,
     modulePath: path.slice(0, path.lastIndexOf("/")),
-    position: data.position,
   });
+}
+
+function parseModuleMetadata(
+  source: string,
+  path: string,
+): Omit<ModuleMetadata, "modulePath"> {
+  let data: unknown;
+
+  try {
+    data = parseYaml(source);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new Error(`${path}: module metadata is not valid YAML — ${reason}`);
+  }
+
+  if (typeof data !== "object" || data === null || Array.isArray(data)) {
+    throw new Error(`${path}: module metadata must be a YAML mapping of fields.`);
+  }
+
+  const record = data as Record<string, unknown>;
+
+  return {
+    slug: requireString(record, "slug", path),
+    title: requireString(record, "title", path),
+    description: requireString(record, "summary", path),
+    position: requireNumber(record, "position", path),
+  };
+}
+
+function requireString(
+  data: Record<string, unknown>,
+  field: string,
+  path: string,
+): string {
+  const value = data[field];
+
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(
+      `${path}: the "${field}" field is required and must be a non-empty string.`,
+    );
+  }
+
+  return value;
+}
+
+function requireNumber(
+  data: Record<string, unknown>,
+  field: string,
+  path: string,
+): number {
+  const value = data[field];
+
+  if (typeof value !== "number") {
+    throw new Error(
+      `${path}: the "${field}" field is required and must be a number.`,
+    );
+  }
+
+  return value;
 }
 
 const lessonSources = import.meta.glob<string>("@content/**/*.md", { eager: true, query: "?raw", import: "default", });
@@ -42,7 +104,7 @@ for (let index = 0; index < lessonEntries.length; index++) {
   const lesson = parseLesson(source, path);
   const existingPath = lessonSlugs.get(lesson.slug);
 
-  if (existingPath !== undefined && existingPath !== path) {
+  if (existingPath !== undefined) {
     throw new Error(
       `Duplicate lesson slug "${lesson.slug}" found in ${existingPath} and ${path}.`,
     );
