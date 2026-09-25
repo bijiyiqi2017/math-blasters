@@ -156,7 +156,7 @@ export function checkCriterion(
       );
       break;
     case "equivalent":
-      // Dispatches to checkEquivalent in equivalent.ts; see that file for stub caveats.
+      // Dispatches to checkEquivalent in equivalent.ts.
       return checkEquivalent(criterion, submission);
   }
 
