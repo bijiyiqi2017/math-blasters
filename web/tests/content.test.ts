@@ -1,8 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   contentIndex,
-  arithmeticAdditionModule,
-  makeLesson,
   validateLesson,
   checkStep,
   checkCriterion,
@@ -14,6 +12,7 @@ import {
   getModuleForLesson,
   checkAnswer,
 } from "../src/content";
+import { arithmeticAdditionModule, makeLesson } from "../src/content/fixtures";
 import { parseCriteria } from "../src/content/criteria";
 import { expectNoCriteria } from "./helpers/accessors";
 

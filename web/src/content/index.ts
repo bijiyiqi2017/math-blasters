@@ -24,9 +24,19 @@ type ModuleMetadata = {
 };
 
 const modules: ModuleMetadata[] = [];
+const moduleSlugs = new Map<string, string>();
 
 for (const [path, source] of moduleEntries) {
   const metadata = parseModuleMetadata(source, path);
+  const existingPath = moduleSlugs.get(metadata.slug);
+
+  if (existingPath !== undefined) {
+    throw new Error(
+      `Duplicate module slug "${metadata.slug}" found in ${existingPath} and ${path}.`,
+    );
+  }
+
+  moduleSlugs.set(metadata.slug, path);
 
   modules.push({
     ...metadata,
@@ -129,9 +139,7 @@ const contentModules: Module[] = [...modules]
   }));
 
 export { parseLesson } from "./parse";
-// Re-export all types & fixtures
 export * from "./types";
-export * from "./fixtures";
 
 /**
  * Content index containing all registered modules loaded from the real content files at build time.
