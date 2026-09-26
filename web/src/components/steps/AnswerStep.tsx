@@ -1,14 +1,14 @@
 import { useId, useState } from "react";
 import type { ReactNode } from "react";
-import type { PageAnswerStep } from "../../content/types";
+import type { PageAnswerStep, SubmissionStatus } from "../../content";
 import { AnswerInput } from "../AnswerInput";
 import { Button } from "../Button";
 import { RenderMarkdown } from "../Markdown";
 import styles from "./AnswerStep.module.css";
 
-/** Same shape as the per-step submission state `useLesson` (MB-18) will own; kept here until it merges, when this type moves to `content/useLesson.ts`. */
-export const SUBMISSION_STATUSES = ["untried", "checking", "passed", "not_yet"] as const;
-export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
+/** The per-step submission state is owned by `useLesson`; re-exported so existing imports keep working. */
+export { SUBMISSION_STATUSES } from "../../content";
+export type { SubmissionStatus } from "../../content";
 
 export interface AnswerStepProps {
   step: PageAnswerStep;
