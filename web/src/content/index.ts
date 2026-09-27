@@ -95,7 +95,7 @@ function requireNumber(
 
 const lessonSources = import.meta.glob<string>("@content/**/*.md", { eager: true, query: "?raw", import: "default", });
 const lessonEntries = Object.entries(lessonSources).sort(([a], [b]) =>
-  a.localeCompare(b),
+  a.localeCompare(b, undefined, { numeric: true }),
 );
 const lessonsByModule = new Map<string, Lesson[]>();
 for (let index = 0; index < lessonEntries.length; index++) {
