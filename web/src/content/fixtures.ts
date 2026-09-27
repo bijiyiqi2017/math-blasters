@@ -33,8 +33,8 @@ export function makeLesson(overrides: Partial<Lesson> = {}): Lesson {
 }
 
 /**
- * Hand-written fixture data for the arithmetic-addition module.
- * Kept as test/reference data for verifying the build-time content index.
+ * Test-only fixture data for verifying the build-time content index.
+ * Application code should use contentIndex from index.ts instead.
  */
 export const arithmeticAdditionModule: Module = {
   slug: "arithmetic-addition",
