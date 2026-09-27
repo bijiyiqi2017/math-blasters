@@ -24,19 +24,9 @@ type ModuleMetadata = {
 };
 
 const modules: ModuleMetadata[] = [];
-const moduleSlugs = new Map<string, string>();
 
 for (const [path, source] of moduleEntries) {
   const metadata = parseModuleMetadata(source, path);
-  const existingPath = moduleSlugs.get(metadata.slug);
-
-  if (existingPath !== undefined) {
-    throw new Error(
-      `Duplicate module slug "${metadata.slug}" found in ${existingPath} and ${path}.`,
-    );
-  }
-
-  moduleSlugs.set(metadata.slug, path);
 
   modules.push({
     ...metadata,
@@ -108,21 +98,11 @@ const lessonEntries = Object.entries(lessonSources).sort(([a], [b]) =>
   a.localeCompare(b),
 );
 const lessonsByModule = new Map<string, Lesson[]>();
-const lessonSlugs = new Map<string, string>();
 for (let index = 0; index < lessonEntries.length; index++) {
   const [path, source]: [string, string] = lessonEntries[index];
   const modulePath = path.slice(0, path.lastIndexOf("/"));
   
   const lesson = parseLesson(source, path);
-  const existingPath = lessonSlugs.get(lesson.slug);
-
-  if (existingPath !== undefined) {
-    throw new Error(
-      `Duplicate lesson slug "${lesson.slug}" found in ${existingPath} and ${path}.`,
-    );
-  }
-
-  lessonSlugs.set(lesson.slug, path);
 
   const moduleLessons = lessonsByModule.get(modulePath) ?? [];
   moduleLessons.push(lesson);
