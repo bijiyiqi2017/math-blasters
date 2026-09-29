@@ -48,6 +48,10 @@ Interactive API docs are at [http://localhost:8000/docs](http://localhost:8000/d
 > `5433` instead. Inside the compose network the API still connects to
 > `db:5432`. Change `POSTGRES_PORT` in `.env` if 5433 is also busy.
 
+## API URL configuration
+
+The web app uses a baked-at-build-time API URL. `VITE_API_URL` can override the default `/api` path when the frontend and API are served from different origins; when it is not configured, the relative `/api` path supports single-origin deployments. Because Vite embeds `VITE_API_URL` into the frontend at build time, production builds must receive the intended API URL during the build, and the value is visible in the shipped frontend bundle, so it must never contain secrets.
+
 ## Troubleshooting
 
 ### PostgreSQL port
