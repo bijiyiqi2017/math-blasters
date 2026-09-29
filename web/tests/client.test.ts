@@ -60,11 +60,9 @@ describe("apiFetch", () => {
     vi.restoreAllMocks();
   });
 
-  it("resolves paths against VITE_API_URL, falling back to the compose default", () => {
-    expect(API_BASE_URL).toBe(
-      (import.meta.env.VITE_API_URL ?? "http://localhost:8000/api").replace(/\/+$/, ""),
-    );
-    expect(apiUrl("/auth/me")).toBe(`${API_BASE_URL}/auth/me`);
+  it("uses a relative API path when VITE_API_URL is not configured", () => {
+    expect(API_BASE_URL).toBe("/api");
+    expect(apiUrl("/auth/me")).toBe("/api/auth/me");
   });
 
   it("sends credentials and no Content-Type on a bodiless GET", async () => {
