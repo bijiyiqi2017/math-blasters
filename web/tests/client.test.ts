@@ -57,10 +57,21 @@ describe("parseApiErrorMessage", () => {
 describe("apiFetch", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   it("uses a relative API path when VITE_API_URL is not configured", async () => {
-    vi.stubEnv("VITE_API_URL", undefined as unknown as string);
+    vi.stubEnv("VITE_API_URL", undefined);
+    vi.resetModules();
+
+    const { API_BASE_URL, apiUrl } = await import("../src/api/client");
+
+    expect(API_BASE_URL).toBe("/api");
+    expect(apiUrl("/auth/me")).toBe("/api/auth/me");
+  });
+
+  it("uses a relative API path when VITE_API_URL is empty", async () => {
+    vi.stubEnv("VITE_API_URL", "");
     vi.resetModules();
 
     const { API_BASE_URL, apiUrl } = await import("../src/api/client");

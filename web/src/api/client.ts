@@ -57,9 +57,9 @@ export function parseApiErrorMessage(raw: string, fallback: string): string {
   return trimmed || fallback;
 }
 
-// Use a relative path by default so single-origin deployments need no configuration.
+// Use a relative path when unset or empty so single-origin deployments need no configuration.
 export const API_BASE_URL = (
-  import.meta.env.VITE_API_URL ?? "/api"
+  import.meta.env.VITE_API_URL || "/api"
 ).replace(/\/+$/, "");
 
 /** Absolute URL for an API path such as "/auth/me". */
