@@ -50,7 +50,7 @@ Interactive API docs are at [http://localhost:8000/docs](http://localhost:8000/d
 
 ## API URL configuration
 
-The web app uses a baked-at-build-time API URL. `VITE_API_URL` can override the default `/api` path when the frontend and API are served from different origins; when it is not configured, the relative `/api` path supports single-origin deployments. Because Vite embeds `VITE_API_URL` into the frontend at build time, production builds must receive the intended API URL during the build, and the value is visible in the shipped frontend bundle, so it must never contain secrets.
+The web app uses a baked-at-build-time API URL because this keeps configuration simple and avoids adding a separate runtime configuration mechanism. When the frontend and API share an origin, the default relative `/api` path requires no `VITE_API_URL`; for cross-origin production deployments, set `VITE_API_URL` to the intended API base URL during the production build. Vite embeds `VITE_API_URL` into the frontend at build time, so the value is visible in the shipped frontend bundle and must never contain secrets.
 
 ## Troubleshooting
 
