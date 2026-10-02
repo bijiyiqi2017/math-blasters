@@ -144,6 +144,36 @@ describe("Content Contracts & Fixtures", () => {
         "early-lab requires multiplication, which is taught later in multiplication-tutorial",
       );
     });
+
+    it("accepts a lab when a concept was taught earlier and again later", () => {
+      const module = {
+        slug: "repeat-concept-module",
+        title: "Repeat Concept Module",
+        lessons: [
+          makeLesson({
+            slug: "first-addition",
+            title: "First Addition",
+            type: "tutorial",
+            teaches: ["addition"],
+          }),
+          makeLesson({
+            slug: "addition-lab",
+            title: "Addition Lab",
+            type: "lab",
+            requires: ["addition"],
+          }),
+          makeLesson({
+            slug: "second-addition",
+            title: "Second Addition",
+            type: "tutorial",
+            teaches: ["addition"],
+          }),
+        ],
+      };
+
+      expect(() => validateConcepts([module])).not.toThrow();
+    });
+
     it("prefers the later-in-this-module error when the concept is also taught elsewhere", () => {
       const moduleWithLab = {
         slug: "lab-module",
