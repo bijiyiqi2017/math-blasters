@@ -144,6 +144,45 @@ describe("Content Contracts & Fixtures", () => {
         "early-lab requires multiplication, which is taught later in multiplication-tutorial",
       );
     });
+    it("prefers the later-in-this-module error when the concept is also taught elsewhere", () => {
+      const moduleWithLab = {
+        slug: "lab-module",
+        title: "Lab Module",
+        lessons: [
+          makeLesson({
+            slug: "early-lab",
+            title: "Early Lab",
+            type: "lab",
+            requires: ["addition"],
+          }),
+          makeLesson({
+            slug: "addition-tutorial",
+            title: "Addition",
+            type: "tutorial",
+            teaches: ["addition"],
+          }),
+        ],
+      };
+
+      const moduleWithTutorial = {
+        slug: "other-module",
+        title: "Other Module",
+        lessons: [
+          makeLesson({
+            slug: "other-addition-tutorial",
+            title: "Other Addition",
+            type: "tutorial",
+            teaches: ["addition"],
+          }),
+        ],
+      };
+
+      expect(() =>
+        validateConcepts([moduleWithLab, moduleWithTutorial]),
+      ).toThrow(
+        "early-lab requires addition, which is taught later in addition-tutorial",
+      );
+    });
     it("rejects a lab when a required concept is taught in another module", () => {
       const moduleWithLab = {
         slug: "lab-module",

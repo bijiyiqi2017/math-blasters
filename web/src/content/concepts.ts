@@ -46,7 +46,7 @@ export function validateConcepts(index: Module[]): void {
               );
             }
 
-            if (taughtInOtherModule.has(concept)) {
+            if (taughtInOtherModule.get(concept) !== module.slug) {
               throw new Error(
                 `${lesson.slug} requires ${concept}, which is taught in another module`,
               );
