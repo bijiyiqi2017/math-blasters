@@ -118,7 +118,7 @@ describe("Content Contracts & Fixtures", () => {
       };
 
       expect(() => validateConcepts([module])).toThrow(
-        "untaught-concept-lab requires multiplication",
+        "untaught-concept-lab requires multiplication, which nothing before it teaches",
       );
     });
     it("rejects a lab when a required concept is taught later", () => {
@@ -212,6 +212,40 @@ describe("Content Contracts & Fixtures", () => {
 
       expect(() =>
         validateConcepts([moduleWithLab, moduleWithTutorial]),
+      ).toThrow(
+        "cross-module-lab requires addition, which is taught in another module",
+      );
+    });
+
+    it("rejects a lab when the teaching module comes before the lab module", () => {
+      const moduleWithTutorial = {
+        slug: "tutorial-module",
+        title: "Tutorial Module",
+        lessons: [
+          makeLesson({
+            slug: "addition-tutorial",
+            title: "Addition",
+            type: "tutorial",
+            teaches: ["addition"],
+          }),
+        ],
+      };
+
+      const moduleWithLab = {
+        slug: "lab-module",
+        title: "Lab Module",
+        lessons: [
+          makeLesson({
+            slug: "cross-module-lab",
+            title: "Cross Module Lab",
+            type: "lab",
+            requires: ["addition"],
+          }),
+        ],
+      };
+
+      expect(() =>
+        validateConcepts([moduleWithTutorial, moduleWithLab]),
       ).toThrow(
         "cross-module-lab requires addition, which is taught in another module",
       );

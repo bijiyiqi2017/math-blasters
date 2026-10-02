@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
@@ -33,10 +33,15 @@ function loadContentIndex(): Module[] {
 function readModule(name: string): ModuleSource {
   const moduleDir = join(CONTENT_DIR, name);
   const moduleYamlPath = join(moduleDir, "module.yaml");
-  const data = parseYaml(readFileSync(moduleYamlPath, "utf-8")) as Record<
-    string,
-    unknown
-  >;
+
+  if (!existsSync(moduleYamlPath)) {
+    throw new Error(`${moduleDir}: missing "module.yaml".`);
+  }
+
+  const data = parseYamlMapping(
+    readFileSync(moduleYamlPath, "utf-8"),
+    moduleYamlPath,
+  );
 
   const slug = requireString(data, "slug", moduleYamlPath);
   const title = requireString(data, "title", moduleYamlPath);
@@ -64,6 +69,26 @@ function readModule(name: string): ModuleSource {
     },
     position,
   };
+}
+
+function parseYamlMapping(
+  source: string,
+  path: string,
+): Record<string, unknown> {
+  let data: unknown;
+
+  try {
+    data = parseYaml(source);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new Error(`${path}: not valid YAML — ${reason}`);
+  }
+
+  if (typeof data !== "object" || data === null || Array.isArray(data)) {
+    throw new Error(`${path}: must be a YAML mapping of fields.`);
+  }
+
+  return data as Record<string, unknown>;
 }
 
 function requireString(
