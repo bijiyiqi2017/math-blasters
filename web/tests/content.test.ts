@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   contentIndex,
   validateLesson,
+  validateConcepts,
   checkStep,
   checkCriterion,
   type Criterion,
@@ -93,6 +94,12 @@ describe("Content Contracts & Fixtures", () => {
       expect(lesson?.type).toBe("lab");
       expect(lesson?.outcome).toBeDefined();
       expect(lesson?.requires).toEqual(["addition"]);
+    });
+  });
+
+  describe("validateConcepts", () => {
+    it("accepts a lab when its required concepts were taught earlier", () => {
+      expect(() => validateConcepts([arithmeticAdditionModule])).not.toThrow();
     });
   });
 
