@@ -231,6 +231,41 @@ describe("Content Contracts & Fixtures", () => {
       ]);
     });
 
+    it("uses the first tutorial when a concept is taught more than once", () => {
+      const module = {
+        slug: "repeat-concept-module",
+        title: "Repeat Concept Module",
+        lessons: [
+          makeLesson({
+            slug: "first-addition",
+            title: "First Addition",
+            type: "tutorial",
+            teaches: ["addition"],
+          }),
+          makeLesson({
+            slug: "second-addition",
+            title: "Second Addition",
+            type: "tutorial",
+            teaches: ["addition"],
+          }),
+          makeLesson({
+            slug: "addition-lab",
+            title: "Addition Lab",
+            type: "lab",
+            requires: ["addition"],
+          }),
+        ],
+      };
+
+      expect(requirementsOf([module], "addition-lab")).toEqual([
+        {
+          concept: "addition",
+          tutorialSlug: "first-addition",
+          title: "First Addition",
+        },
+      ]);
+    });
+
     it("returns the first incomplete tutorial as the lab lock reason", () => {
       expect(
         lockReason(

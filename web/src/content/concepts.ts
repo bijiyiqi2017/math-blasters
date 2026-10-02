@@ -69,7 +69,7 @@ export interface ConceptRequirement {
 }
 
 /**
- * Return the tutorials that teach each concept required by a lab.
+ * Return the first earlier tutorial that teaches each concept required by a lab.
  *
  * Content validation guarantees that each required concept is taught
  * earlier in the same module.
