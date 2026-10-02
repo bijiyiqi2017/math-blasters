@@ -10,6 +10,7 @@ import type {
 } from "./types";
 import { parse as parseYaml } from "yaml";
 import { parseLesson } from "./parse";
+export { validateConcepts, requirementsOf, lockReason } from "./concepts";
 
 const moduleSources = import.meta.glob<string>("@content/**/module.yaml", {
   eager: true,

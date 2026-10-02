@@ -3,6 +3,8 @@ import {
   contentIndex,
   validateLesson,
   validateConcepts,
+  requirementsOf,
+  lockReason,
   checkStep,
   checkCriterion,
   type Criterion,
@@ -101,8 +103,118 @@ describe("Content Contracts & Fixtures", () => {
     it("accepts a lab when its required concepts were taught earlier", () => {
       expect(() => validateConcepts([arithmeticAdditionModule])).not.toThrow();
     });
+    it("rejects a lab when a required concept was not taught earlier", () => {
+      const module = {
+        ...arithmeticAdditionModule,
+        lessons: [
+          arithmeticAdditionModule.lessons[0],
+          makeLesson({
+            slug: "untaught-concept-lab",
+            title: "Untaught Concept Lab",
+            type: "lab",
+            requires: ["multiplication"],
+          }),
+        ],
+      };
+
+      expect(() => validateConcepts([module])).toThrow(
+        "untaught-concept-lab requires multiplication",
+      );
+    });
+    it("rejects a lab when a required concept is taught later", () => {
+      const module = {
+        ...arithmeticAdditionModule,
+        lessons: [
+          makeLesson({
+            slug: "early-lab",
+            title: "Early Lab",
+            type: "lab",
+            requires: ["multiplication"],
+          }),
+          makeLesson({
+            slug: "multiplication-tutorial",
+            title: "Multiplication",
+            type: "tutorial",
+            teaches: ["multiplication"],
+          }),
+        ],
+      };
+
+      expect(() => validateConcepts([module])).toThrow(
+        "early-lab requires multiplication, which is taught later in multiplication-tutorial",
+      );
+    });
+    it("rejects a lab when a required concept is taught in another module", () => {
+      const moduleWithLab = {
+        slug: "lab-module",
+        title: "Lab Module",
+        lessons: [
+          makeLesson({
+            slug: "cross-module-lab",
+            title: "Cross Module Lab",
+            type: "lab",
+            requires: ["addition"],
+          }),
+        ],
+      };
+
+      const moduleWithTutorial = {
+        slug: "tutorial-module",
+        title: "Tutorial Module",
+        lessons: [
+          makeLesson({
+            slug: "addition-tutorial",
+            title: "Addition",
+            type: "tutorial",
+            teaches: ["addition"],
+          }),
+        ],
+      };
+
+      expect(() =>
+        validateConcepts([moduleWithLab, moduleWithTutorial]),
+      ).toThrow(
+        "cross-module-lab requires addition, which is taught in another module",
+      );
+    });
   });
 
+  describe("concept requirements", () => {
+    it("returns the tutorial that teaches each lab requirement", () => {
+      expect(
+        requirementsOf([arithmeticAdditionModule], "marbles-in-total"),
+      ).toEqual([
+        {
+          concept: "addition",
+          tutorialSlug: "adding-two-numbers",
+          title: "Adding Two Numbers",
+        },
+      ]);
+    });
+
+    it("returns the first incomplete tutorial as the lab lock reason", () => {
+      expect(
+        lockReason(
+          [arithmeticAdditionModule],
+          "marbles-in-total",
+          [],
+        ),
+      ).toEqual({
+        tutorialSlug: "adding-two-numbers",
+        title: "Adding Two Numbers",
+      });
+    });
+
+    it("returns null when all required tutorials are complete", () => {
+      expect(
+        lockReason(
+          [arithmeticAdditionModule],
+          "marbles-in-total",
+          ["adding-two-numbers"],
+        ),
+      ).toBeNull();
+    });
+  });
   describe("Signature-only stubs", () => {
     it('validateLesson throws "not implemented"', () => {
       const lesson = makeLesson();
