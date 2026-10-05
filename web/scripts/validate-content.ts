@@ -1,27 +1,32 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { parse as parseYaml } from "yaml";
 import { parseLesson } from "../src/content/parse";
 import type { Module } from "../src/content/types";
 import { validateConcepts } from "../src/content/concepts";
+
+type LessonParser = typeof parseLesson;
 
 const scriptDir = resolve(dirname(fileURLToPath(import.meta.url)));
 /**
  * Validate every real lesson with the same parser used by the web app.
  * This keeps malformed content from reaching the browser bundle.
  */
-const CONTENT_DIR = resolve(scriptDir, "../../content");
+export const DEFAULT_CONTENT_DIR = resolve(scriptDir, "../../content");
 
 interface ModuleSource {
   module: Module;
   position: number;
 }
 
-function loadContentIndex(): Module[] {
-  return readdirSync(CONTENT_DIR, { withFileTypes: true })
+function loadContentIndex(
+  contentDir: string,
+  parser: LessonParser,
+): Module[] {
+  return readdirSync(contentDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
-    .map((entry) => readModule(entry.name))
+    .map((entry) => readModule(contentDir, entry.name, parser))
     .sort(
       (a, b) =>
         a.position - b.position ||
@@ -30,8 +35,12 @@ function loadContentIndex(): Module[] {
     .map(({ module }) => module);
 }
 
-function readModule(name: string): ModuleSource {
-  const moduleDir = join(CONTENT_DIR, name);
+function readModule(
+  contentDir: string,
+  name: string,
+  parser: LessonParser,
+): ModuleSource {
+  const moduleDir = join(contentDir, name);
   const moduleYamlPath = join(moduleDir, "module.yaml");
 
   if (!existsSync(moduleYamlPath)) {
@@ -58,7 +67,7 @@ function readModule(name: string): ModuleSource {
     .sort()
     .map((filename) => {
       const path = join(moduleDir, filename);
-      return parseLesson(readFileSync(path, "utf-8"), path);
+      return parser(readFileSync(path, "utf-8"), path);
     });
 
   return {
@@ -123,12 +132,21 @@ function requireNumber(
   return value;
 }
 
-function main(): void {
-  const contentIndex = loadContentIndex();
+export function validateContent(
+  contentDir: string = DEFAULT_CONTENT_DIR,
+  parser: LessonParser = parseLesson,
+): void {
+  const contentIndex = loadContentIndex(contentDir, parser);
 
   validateConcepts(contentIndex);
 
   console.log("All content lessons and concept requirements are valid.");
 }
 
-main();
+function main(): void {
+  validateContent();
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}
