@@ -8,6 +8,7 @@ const MALFORMED_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-ma
 const MISSING_MODULE_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-missing-module");
 const EMPTY_FIELD_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-empty-field");
 const SLUG_MISMATCH_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-slug-mismatch");
+const CONCEPT_VIOLATION_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-concept-violation");
 
 describe("validateContent", () => {
   it("validates clean fixture content", () => {
@@ -36,5 +37,27 @@ describe("validateContent", () => {
     expect(() => validateContent(SLUG_MISMATCH_CONTENT_DIR)).toThrow(
       /module\.yaml.*slug.*different-module.*module-a/,
     );
+  });
+  it("rejects a lab that requires an untaught concept", () => {
+    expect(() => validateContent(CONCEPT_VIOLATION_CONTENT_DIR)).toThrow(
+      /practice.*requires.*subtraction.*nothing before it teaches/,
+    );
+  });
+  it("uses the injected lesson parser", () => {
+    let parserCalled = false;
+
+    const fakeParser = () => {
+      parserCalled = true;
+
+      return {
+        slug: "intro",
+        title: "Introduction",
+        type: "tutorial" as const,
+        steps: [],
+      };
+    };
+
+    expect(() => validateContent(FIXTURE_CONTENT_DIR, fakeParser)).not.toThrow();
+    expect(parserCalled).toBe(true);
   });
 });

@@ -144,7 +144,7 @@ export function validateContent(
 }
 
 function main(): void {
-  validateContent();
+  validateContent(process.argv[2] ?? DEFAULT_CONTENT_DIR);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
