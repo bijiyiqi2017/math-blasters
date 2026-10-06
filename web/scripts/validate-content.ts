@@ -147,6 +147,6 @@ function main(): void {
   validateContent(process.argv[2] ?? DEFAULT_CONTENT_DIR);
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

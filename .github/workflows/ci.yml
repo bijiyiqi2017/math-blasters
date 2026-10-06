@@ -104,9 +104,6 @@ jobs:
       - name: Validate content
         run: npm run content:validate
 
-      - name: Test content validator CLI
-        run: npm run content:validate:test
-
       - name: Test
         run: npm test
 

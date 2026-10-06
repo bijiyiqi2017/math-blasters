@@ -11,7 +11,6 @@
     "typecheck": "tsc -b",
     "content:manifest": "tsx scripts/generate-manifest.ts",
     "content:validate": "tsx scripts/validate-content.ts",
-    "content:validate:test": "tsx scripts/test-validate-content.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
