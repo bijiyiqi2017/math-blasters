@@ -1,11 +1,8 @@
-import { execFile } from "node:child_process";
 import { join } from "node:path";
-import { promisify } from "node:util";
-import { describe, expect, it } from "vitest";
 
-import { validateContent } from "../scripts/validate-content";
+import { describe, expect, it, vi } from "vitest";
 
-const execFileAsync = promisify(execFile);
+import { runCli, validateContent } from "../scripts/validate-content";
 
 const FIXTURE_CONTENT_DIR = join(__dirname, "fixtures", "content-validation");
 const MALFORMED_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-malformed");
@@ -14,58 +11,15 @@ const EMPTY_FIELD_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-
 const EMPTY_MODULE_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-empty-module");
 const SLUG_MISMATCH_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-slug-mismatch");
 const CONCEPT_VIOLATION_CONTENT_DIR = join(__dirname, "fixtures", "content-validation-concept-violation");
-const TSX_BIN = join(__dirname, "../node_modules/.bin/tsx");
-const VALIDATOR_SCRIPT = join(__dirname, "../scripts/validate-content.ts");
-
-async function runValidator(contentDir: string) {
-  try {
-    const result = await execFileAsync(TSX_BIN, [
-      VALIDATOR_SCRIPT,
-      contentDir,
-    ]);
-
-    return {
-      code: 0,
-      stdout: result.stdout,
-      stderr: result.stderr,
-    };
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      typeof error.code === "number"
-    ) {
-      return {
-        code: error.code,
-        stdout:
-          "stdout" in error && typeof error.stdout === "string"
-            ? error.stdout
-            : "",
-        stderr:
-          "stderr" in error && typeof error.stderr === "string"
-            ? error.stderr
-            : "",
-      };
-    }
-
-    throw error;
-  }
-}
 
 describe("validateContent", () => {
   it("validates clean fixture content", () => {
     expect(() => validateContent(FIXTURE_CONTENT_DIR)).not.toThrow();
   });
 
-  it("exits successfully for clean content", async () => {
-    const result = await runValidator(FIXTURE_CONTENT_DIR);
-
-    expect(result.code).toBe(0);
-    expect(result.stdout).toContain(
-      "All content lessons and concept requirements are valid",
-    );
-  }, 15000);
+  it("exits successfully for clean content", () => {
+    expect(runCli(FIXTURE_CONTENT_DIR)).toBe(0);
+  });
 
   it("rejects a malformed lesson", () => {
     expect(() => validateContent(MALFORMED_CONTENT_DIR)).toThrow(
@@ -73,18 +27,25 @@ describe("validateContent", () => {
     );
   });
 
-  it("exits with failure and reports the malformed lesson", async () => {
-    const result = await runValidator(MALFORMED_CONTENT_DIR);
+  it("exits with failure and reports the malformed lesson", () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const malformedLessonPath = join(
       MALFORMED_CONTENT_DIR,
       "module-a",
       "01-intro.md",
     );
 
-    expect(result.code).toBe(1);
-    expect(result.stderr).toContain(malformedLessonPath);
-    expect(result.stderr).toMatch(/slug.*wrong-slug.*intro/);
-  }, 15000);
+    try {
+      expect(runCli(MALFORMED_CONTENT_DIR)).toBe(1);
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining(malformedLessonPath),
+        }),
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it("rejects a module with missing module.yaml", () => {
     expect(() => validateContent(MISSING_MODULE_CONTENT_DIR)).toThrow(

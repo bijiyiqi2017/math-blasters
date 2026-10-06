@@ -143,10 +143,18 @@ export function validateContent(
   console.log("All content lessons and concept requirements are valid.");
 }
 
-function main(): void {
-  validateContent(process.argv[2] ?? DEFAULT_CONTENT_DIR);
+export function runCli(
+  contentDir: string = process.argv[2] ?? DEFAULT_CONTENT_DIR,
+): number {
+  try {
+    validateContent(contentDir);
+    return 0;
+  } catch (error) {
+    console.error(error);
+    return 1;
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main();
+  process.exitCode = runCli();
 }
