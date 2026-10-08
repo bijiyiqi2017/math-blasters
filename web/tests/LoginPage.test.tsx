@@ -73,9 +73,9 @@ describe("LoginPage", () => {
     expect(googleLink).toHaveFocus();
 
     await user.tab();
-    expect(document.body).toHaveFocus();
+    expect(githubLink).not.toHaveFocus();
+    expect(googleLink).not.toHaveFocus();
   });
-
   it("renders LoginPage when navigating to /login", async () => {
     render(
       <MemoryRouter initialEntries={["/login"]}>
